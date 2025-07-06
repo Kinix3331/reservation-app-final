@@ -1,11 +1,9 @@
- 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Spinner, Alert, Table, Button, Form, Card } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
 import MeetingFormModal from '../components/MeetingFormModal';
 import { getMeetings, updateMeeting as updateMeetingService, deleteMeeting as deleteMeetingService } from '../services/meetingService';
 import { getAllUsers, updateUserProfile, deleteUserProfile } from '../services/userService';
-
 
 import { UserProfile, Meeting } from '../types/models';
 
@@ -56,15 +54,14 @@ const AdminPage: React.FC = () => {
     }
   }, [currentUser, authLoading, fetchAllUsers, fetchAllMeetings]);
 
-  const handleChangeRole = useCallback(async (userId: string, currentRole: 'user' | 'admin') => {
-    if (!window.confirm(`Czy na pewno chcesz zmienić rolę użytkownika na ${currentRole === 'admin' ? 'Użytkownik' : 'Administrator'}?`)) {
+  const handleChangeRole = useCallback(async (userId: string, selectedNewRole: 'user' | 'admin') => {
+    if (!window.confirm(`Czy na pewno chcesz zmienić rolę użytkownika na ${selectedNewRole === 'admin' ? 'administratora' : 'użytkownika'}?`)) {
       return;
     }
     try {
-      const newRole = currentRole === 'admin' ? 'user' : 'admin';
-      await updateUserProfile(userId, { role: newRole });
+      await updateUserProfile(userId, { role: selectedNewRole });
       fetchAllUsers();
-      alert(`Rola użytkownika ${userId} zmieniona na ${newRole}.`);
+      alert(`Rola użytkownika ${userId} zmieniona na ${selectedNewRole}.`);
     } catch (err: any) {
       console.error("Błąd podczas zmiany roli:", err);
       setError('Nie udało się zmienić roli użytkownika: ' + err.message);
@@ -150,7 +147,6 @@ const AdminPage: React.FC = () => {
       <h2>Panel Administratora</h2>
       <p>Witaj, {currentUser.username || currentUser.email}!</p>
 
-      {/* Sekcja zarządzania spotkaniami */}
       <Card className="mb-4">
         <Card.Header as="h5">Zarządzanie Spotkaniami</Card.Header>
         <Card.Body>
@@ -166,7 +162,7 @@ const AdminPage: React.FC = () => {
                   <th>Tytuł</th>
                   <th>Data</th>
                   <th>Godzina</th>
-                  <th>Twórca</th>
+                  <th>Twórcy</th>
                   <th>Uczestnicy</th>
                   <th>Status</th>
                   <th>Akcje</th>
@@ -204,7 +200,6 @@ const AdminPage: React.FC = () => {
         </Card.Body>
       </Card>
 
-      {/* Sekcja zarządzania użytkownikami - PRZYWRÓCONA */}
       <Card>
         <Card.Header as="h5">Zarządzanie Użytkownikami</Card.Header>
         <Card.Body>
@@ -253,7 +248,6 @@ const AdminPage: React.FC = () => {
         </Card.Body>
       </Card>
 
-      {/* Modal do zarządzania spotkaniami (MeetingFormModal) */}
       <MeetingFormModal
         show={showModal}
         onHide={() => setShowModal(false)}
